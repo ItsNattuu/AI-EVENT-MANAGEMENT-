@@ -1,0 +1,390 @@
+{
+  "name": "QR Check-in System",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "checkin",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1504,
+        0
+      ],
+      "id": "9b7957d4-a8cd-4f76-bd1f-952cd335c8f8",
+      "name": "Webhook",
+      "webhookId": "3b49f001-4231-45a6-8cb2-a2952a5293d3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0",
+          "mode": "list",
+          "cachedResultName": "AI Event Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 20616773,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit#gid=20616773"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Registeration ID ",
+              "lookupValue": "={{$json.registrationId}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1120,
+        0
+      ],
+      "id": "13f2df91-2136-4f45-b6e3-b62dad09c835",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CPlW7erPppdXqUmD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f482c1e8-e8a5-4ff9-a5e5-28e729c416eb",
+              "name": "registrationId",
+              "value": "={{$json.query.registrationId}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1296,
+        0
+      ],
+      "id": "5b61e7fe-a870-4305-ae93-b93f472a63d8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "281e3d6d-8b08-4e74-9089-b6552fef9f9d",
+              "leftValue": "={{$input.all().length}}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -912,
+        0
+      ],
+      "id": "348cc6af-59fb-4191-96ed-c50b5c193ddc",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0",
+          "mode": "list",
+          "cachedResultName": "AI Event Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 20616773,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit#gid=20616773"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Registeration ID ": "={{ $json['Registeration ID '] }}",
+            "Attendance": "Present",
+            "Check-in-Time": "={{$now}}"
+          },
+          "matchingColumns": [
+            "Registeration ID "
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "College Name",
+              "displayName": "College Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department ",
+              "displayName": "Department ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Year of Study",
+              "displayName": "Year of Study",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What event you are organising ?",
+              "displayName": "What event you are organising ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Registeration ID ",
+              "displayName": "Registeration ID ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Registeration Status",
+              "displayName": "Registeration Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "QR Code Link",
+              "displayName": "QR Code Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attendance",
+              "displayName": "Attendance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Check-in-Time",
+              "displayName": "Check-in-Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -672,
+        -112
+      ],
+      "id": "45b8b51b-2cc8-4ac2-9989-736f990cc8b6",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CPlW7erPppdXqUmD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Attendance marked successfully\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -464,
+        -112
+      ],
+      "id": "67429cff-6eef-446d-a6d8-0f52e6ad3e35",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f63db464-c532-47e3-885c-ce0f5c709e83",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60ff7d47f3e5970d855e91ebbacad2278a7c5fe2b3d2f44efaa96bdb7cdb4825"
+  },
+  "nodeGroups": [],
+  "id": "EGxkFtdTxDB7yFLD",
+  "tags": [
+    {
+      "updatedAt": "2026-07-29T15:11:30.464Z",
+      "createdAt": "2026-07-29T15:11:30.464Z",
+      "id": "FgrdqzhUHeCgdFRj",
+      "name": "project-1"
+    }
+  ]
+}

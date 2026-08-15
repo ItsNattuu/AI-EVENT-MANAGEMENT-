@@ -1,0 +1,299 @@
+{
+  "name": "AI Feedback Analyzer",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1gpETXkQPAk8LjZOKY24HbKUuOm6r0asgvApNUGB8rsA",
+          "mode": "list",
+          "cachedResultName": "FEEDBACK FORM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gpETXkQPAk8LjZOKY24HbKUuOm6r0asgvApNUGB8rsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 639553397,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gpETXkQPAk8LjZOKY24HbKUuOm6r0asgvApNUGB8rsA/edit#gid=639553397"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -16
+      ],
+      "id": "c64758c3-9762-44fc-8eda-0f294ab9215c",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "kuUv6tPUfytwjoPE",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an AI event feedback analyzer.\n\nAnalyze the following participant feedback.\n\nParticipant Name:\n{{$json[\"Full Name \"]}}\n\nRegistration ID:\n{{$json[\"Registration ID\"]}}\n\nRating:\n{{$json[\"How would you rate the event?\"]}}\n\nPositive Feedback:\n{{$json[\"What did you like the most ? \"]}}\n\nImprovement Suggestions:\n{{$json[\"What can we improve ? \"]}}\n\nGenerate the following:\n\n1. Overall Sentiment (Positive, Neutral, or Negative)\n2. Feedback Summary (2-3 sentences)\n3. Three improvement suggestions for the organizer.\n\nReturn ONLY in this format:\n\nSentiment:\n<Positive/Neutral/Negative>\n\nSummary:\n<summary>\n\nSuggestions:\n- suggestion 1\n- suggestion 2\n- suggestion 3"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        -16
+      ],
+      "id": "36dce468-e3db-4450-b2af-e3bb23897e1c",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mpLENrMcYlXYB9VK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1gpETXkQPAk8LjZOKY24HbKUuOm6r0asgvApNUGB8rsA",
+          "mode": "list",
+          "cachedResultName": "FEEDBACK FORM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gpETXkQPAk8LjZOKY24HbKUuOm6r0asgvApNUGB8rsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 639553397,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gpETXkQPAk8LjZOKY24HbKUuOm6r0asgvApNUGB8rsA/edit#gid=639553397"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Registration ID": "={{$json[\"Registration ID\"]}}",
+            "AI Summary": "={{$json.content.parts[0].text}}"
+          },
+          "matchingColumns": [
+            "Registration ID"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name ",
+              "displayName": "Full Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Registration ID",
+              "displayName": "Registration ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "How would you rate the event?",
+              "displayName": "How would you rate the event?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What did you like the most ? ",
+              "displayName": "What did you like the most ? ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What can we improve ? ",
+              "displayName": "What can we improve ? ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Sentiment",
+              "displayName": "AI Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI Suggestions",
+              "displayName": "AI Suggestions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        -32
+      ],
+      "id": "2deb6daf-9030-431f-a55b-c8a2becb071b",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CPlW7erPppdXqUmD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        80,
+        -128
+      ],
+      "id": "88d40758-bad0-4913-9d4c-b79753a4057a",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "dca41145-9ebc-400c-b0c5-84154d277543",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60ff7d47f3e5970d855e91ebbacad2278a7c5fe2b3d2f44efaa96bdb7cdb4825"
+  },
+  "nodeGroups": [],
+  "id": "lgo9oH7lbzJLz3Dp",
+  "tags": [
+    {
+      "updatedAt": "2026-07-29T15:11:30.464Z",
+      "createdAt": "2026-07-29T15:11:30.464Z",
+      "id": "FgrdqzhUHeCgdFRj",
+      "name": "project-1"
+    }
+  ]
+}

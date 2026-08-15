@@ -1,0 +1,497 @@
+{
+  "name": "Registration & Participant Management",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0",
+          "mode": "list",
+          "cachedResultName": "AI Event Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 20616773,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit#gid=20616773"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        0
+      ],
+      "id": "c4e3b837-396d-474d-90e4-82b05dbc62e5",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "kuUv6tPUfytwjoPE",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an AI Event Registration Assistant.\n\nA participant has registered for an event.\n\nParticipant Details:\nName: {{$json[\"Full Name\"]}}\nEmail: {{$json[\"Email Address\"]}}\nPhone: {{$json[\"Phone Number\"]}}\nCollege: {{$json[\"College Name\"]}}\nDepartment: {{ $json[\"Department \"] }}\nYear: {{ $json[\"Year of Study\"] }}\nEvent: {{ $json[\"What event you are organising ?\"] }}\n\nGenerate:\n1. A Registration ID in the format EVT-1001.\n2. Registration Status: Confirmed.\n3. A welcome message (2-3 lines).\n4. A confirmation email body (4-5 lines).\n\nReturn only plain text."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -512,
+        176
+      ],
+      "id": "ea8348dc-c26e-4100-953f-d2d526834cf2",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mpLENrMcYlXYB9VK",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconst registrationId = \"EVT-\" + Math.floor(1000 + Math.random() * 9000);\n\nreturn [\n  {\n    json: {\n      ...input,\n      registrationId,\n      registrationStatus: \"Confirmed\",\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -160
+      ],
+      "id": "ca470916-29fe-45fe-ac83-de9767f43890",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "https://quickchart.io/qr",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=={{\n\"http://localhost:5678/webhook/checkin?registrationId=\" + $json.registrationId\n}}"
+            },
+            {
+              "name": "size",
+              "value": "300"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        -64
+      ],
+      "id": "b46e049b-7675-4ce3-bf4f-d57b23551ef8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -48,
+        -64
+      ],
+      "id": "15515235-4b14-415a-a353-1470085f32f9",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        352,
+        -64
+      ],
+      "id": "02297552-eb5f-46cf-9fe8-ea27bd9620ff",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "kl0owZ9u8f3jga5r",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json[\"Email Address\"]}}",
+        "subject": "Registration Confirmed – AI Event",
+        "message": "=<h2>Registration Confirmed 🎉</h2>  <p>Hello <b>{{$json[\"Full Name\"]}}</b>,</p>  <p>Your registration for our AI Event has been confirmed.</p>  <p><b>Registration ID:</b> {{$json.registrationId}}</p>  <p>Your QR Code is attached with this email.</p>  <p>Please carry it during the event.</p>  <p>Regards,<br> AI Event Team</p> <p>Your QR Code is available here:</p>\n\n<p>\n<a href=\"{{$json.webViewLink}}\">\nView your QR Code\n</a>\n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -16
+      ],
+      "id": "f8666391-6206-4f7e-82fd-1e6b75651e12",
+      "name": "Send a message",
+      "webhookId": "bfde8b5c-1787-4e6d-8e7a-0d301ef4f817",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wSCXpSpw2Jo9lMCu",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        464,
+        -176
+      ],
+      "id": "f7338403-8dfe-43d9-b322-159f489eefb1",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0",
+          "mode": "list",
+          "cachedResultName": "AI Event Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 20616773,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17T_861yPPKwAsEIS9jEK8TSGHdmC35OOoWYiebe4_C0/edit#gid=20616773"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$json[\"Timestamp\"]}}",
+            "Full Name": "={{$json[\"Full Name\"]}}",
+            "Email Address": "={{$json[\"Email Address\"]}}",
+            "Phone Number": "={{$json[\"Phone Number\"]}}",
+            "College Name": "={{$json[\"College Name\"]}}",
+            "Department ": "={{$json[\"Department\"]}}",
+            "Year of Study": "={{$json[\"Year of Study\"]}}",
+            "What event you are organising ?": "={{$json[\"What event you are organising ?\"]}}",
+            "Registeration ID ": "={{$json.registrationId}}",
+            "Registeration Status": "Confirmed",
+            "QR Code Link": "={{$json.webViewLink}}"
+          },
+          "matchingColumns": [
+            "Email Address"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "College Name",
+              "displayName": "College Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department ",
+              "displayName": "Department ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Year of Study",
+              "displayName": "Year of Study",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What event you are organising ?",
+              "displayName": "What event you are organising ?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Registeration ID ",
+              "displayName": "Registeration ID ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Registeration Status",
+              "displayName": "Registeration Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "QR Code Link",
+              "displayName": "QR Code Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        960,
+        -64
+      ],
+      "id": "e1b34b3a-d894-415c-8bf3-74b36bc1603a",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CPlW7erPppdXqUmD",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f8aa31b5-cfd2-410c-8be2-296914856125",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60ff7d47f3e5970d855e91ebbacad2278a7c5fe2b3d2f44efaa96bdb7cdb4825"
+  },
+  "nodeGroups": [],
+  "id": "GCH7DZZTPksOI2SE",
+  "tags": [
+    {
+      "updatedAt": "2026-07-29T15:11:30.464Z",
+      "createdAt": "2026-07-29T15:11:30.464Z",
+      "id": "FgrdqzhUHeCgdFRj",
+      "name": "project-1"
+    }
+  ]
+}
